@@ -3,6 +3,8 @@ import time
 import datetime
 import os
 import socket
+import logging
+
 
 from picamera import PiCamera
 from dotenv import load_dotenv
@@ -11,6 +13,8 @@ path=os.getenv("HOME")
 
 # Load .env file using:
 load_dotenv()
+
+logging.basicConfig(filename='./telegrambot.log', encoding='utf-8', level=logging.INFO)
 
 # Handling message from Telegram
 def handleMessage(msg):
@@ -32,6 +36,8 @@ def handleMessage(msg):
  date_time = datetime.datetime.fromtimestamp( msg["date"] )
 
  print ("["+fullDate+"] @" + username + " says -> "+ command)
+ logging.info("["+fullDate+"] @" + username + " says -> "+ command)
+
  if (chat_id == int(os.getenv("CHAT_ID"))):
 
   if (command == '/photo'):
@@ -42,6 +48,8 @@ def handleMessage(msg):
    camera.framerate = 25
 
    print ("Taking picture…");
+   logging.info("["+fullDate+"] Taking a picture")
+
    # Initialize the camera
    camera.start_preview()
    time.sleep(5)
@@ -51,7 +59,8 @@ def handleMessage(msg):
    camera.close()
    # Seding picture
    bot.sendPhoto(chat_id, open(path + '/pic.jpg', 'rb'))
-   print ('Photo sended') 
+   print ('Photo sended')
+   logging.info("["+fullDate+"] Photo sended")
 
   elif (command == '/video'):
 
@@ -61,6 +70,7 @@ def handleMessage(msg):
    camera.framerate = 25
 
    print ('Recording video…')
+   logging.info("["+fullDate+"] Recording a video")
    filename = "./video_" + (time.strftime("%y%b%d_%H%M%S"))
    camera.start_recording(filename + '.h264')
    time.sleep(5)
@@ -70,6 +80,7 @@ def handleMessage(msg):
    call([command], shell=True)
    bot.sendVideo(chat_id, open(filename + '.mp4', 'rb'))
    print ('Video sended')
+   logging.info("["+fullDate+"] Video sended")
    # borrar original
    command = "rm -rf " + filename + '.h264'
    call([command], shell=True)
@@ -93,6 +104,7 @@ def handleMessage(msg):
  else:
   bot.sendMessage(chat_id, "Command not found..")
   print ('###¡INTRUSO!### ->Command ' + command + ' from @' + username);
+  logging.warning('['+fullDate+'] ###¡INTRUSO!### ->Command ' + command + ' from @' + username)
 
 bot = telepot.Bot(os.getenv("BOT_TOKEN"));
 bot.message_loop(handleMessage);
