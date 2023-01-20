@@ -4,7 +4,7 @@ import datetime
 import os
 import socket
 import logging
-
+import subprocess
 
 from picamera import PiCamera
 from dotenv import load_dotenv
@@ -77,19 +77,21 @@ def handleMessage(msg):
    camera.stop_recording()
    camera.close()
    command = "MP4Box -add " + filename + '.h264' + " " + filename + '.mp4'
-   call([command], shell=True)
+   subprocess.run([command], shell=True)
+
    bot.sendVideo(chat_id, open(filename + '.mp4', 'rb'))
    print ('Video sended')
    logging.info("["+fullDate+"] Video sended")
    # borrar original
    command = "rm -rf " + filename + '.h264'
-   call([command], shell=True)
+   subprocess.run([command], shell=True)
+
    print ('Original Video deleted')
    #borrar mp4
    command = "rm -rf " + filename + '.mp4'
-   call([command], shell=True)
-   print ('MP4 Video deleted')
+   subprocess.run([command], shell=True)
 
+   print ('MP4 Video deleted')
   elif (command == '/hello'):
    bot.sendMessage(chat_id, 'Hey!')
   elif (command == '/chatid'):
